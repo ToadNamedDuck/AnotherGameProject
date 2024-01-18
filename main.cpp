@@ -2,8 +2,12 @@
 #ifndef UNICODE
 #define UNICODE
 #endif 
-#include <windows.h>
 #include <iostream>
+#include <windows.h>
+#include "delta_time.cpp"
+
+bool running = true;
+
 //Callback
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -12,6 +16,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		{
 			PostQuitMessage(0);
+			running = false;
 			return 0;
 		}
 	}
@@ -19,7 +24,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 };
 
 
-int main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"Simple Window";
@@ -48,17 +53,25 @@ int main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdS
 	{
 		return 0;
 	}
-	ShowWindow(window, nCmdShow);
 
-	//Window message loop - user generated events to process via callback
-	MSG msg = {};
-	while (GetMessage(&msg, NULL, 0, 0) > 0)
+	HDC deviceContext = GetDC(window);
+
+	ShowWindow(window, nCmdShow);
+	DeltaTime dt;
+	dt.SetFrameBegin();
+	dt.SetFrequency();
+	//Game loop for now will incorporate the message loop.
+	while (running)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		//Window message loop - user generated events to process via callback
+		MSG msg = {};
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		dt.ChangeDeltaTime();
 	}
 
-	bool running = true;
-	//Game loop
 	return 0;
 }
