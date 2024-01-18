@@ -10,10 +10,6 @@ public:
 	void SetFrameBegin()
 	{
 		QueryPerformanceCounter(&frame_begin);
-	}
-	//This should only be used once in the program, used to set a variable for calculating delta time.
-	void SetFrequency()
-	{
 		LARGE_INTEGER perf;
 		QueryPerformanceFrequency(&perf);
 		performance_frequency = (float)(perf.QuadPart);

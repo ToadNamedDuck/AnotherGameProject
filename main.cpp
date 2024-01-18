@@ -59,7 +59,6 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	ShowWindow(window, nCmdShow);
 	DeltaTime dt;
 	dt.SetFrameBegin();
-	dt.SetFrequency();
 	//Game loop for now will incorporate the message loop.
 	while (running)
 	{
