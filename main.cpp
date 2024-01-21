@@ -9,6 +9,7 @@
 
 bool running = true;
 
+
 //Callback
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -27,6 +28,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
+	uint16_t testMask[16] = {
+	0b0110110110110110,
+	0b0110110110110110,
+	0b1111111111111111,
+	0b1111111111111111,
+	0b0110110110110110,
+	0b0110110110110110,
+	0b1111111111111111,
+	0b1111111111111111,
+	0b0110110110110110,
+	0b0110110110110110,
+	0b1111111111111111,
+	0b1111111111111111,
+	0b0110110110110110,
+	0b0110110110110110,
+	0b1111111111111111,
+	0b1111111111111111
+	};
+	Tile testTile(16, 0, 16, testMask);
+	testTile.tell();
+	testTile.showMask();
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"Simple Window";
 	WNDCLASS wnd = {};//Convert to WNDCLASSEX when I want icons. Need a 32x32 and a 16x16 .ico file.
