@@ -21,5 +21,8 @@
     <ClCompile Include="delta_time.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
