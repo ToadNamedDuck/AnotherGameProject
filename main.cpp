@@ -5,6 +5,7 @@
 #include <iostream>
 #include <windows.h>
 #include "delta_time.cpp"
+#include "tile.cpp"
 
 bool running = true;
 
