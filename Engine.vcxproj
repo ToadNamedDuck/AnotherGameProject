@@ -30,6 +30,9 @@
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="tile.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Overworld.bmp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
