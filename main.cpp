@@ -7,7 +7,19 @@
 #include "delta_time.cpp"
 #include "tile.cpp"
 
+//Simple struct for handling the render state.
+struct RenderState {
+	int height;
+	int width;
+	void* memory;
+
+	BITMAPINFO bitmapinfo;
+};
+
+RenderState renderState;
 bool running = true;
+
+
 
 
 //Callback
@@ -15,6 +27,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
 	{
+	case WM_SIZE: {
+		RECT rect;
+		GetClientRect(hwnd, &rect);
+		renderState.width = rect.right - rect.left;
+		renderState.height = rect.bottom - rect.top;
+		int render_state_size = renderState.width * renderState.height * sizeof(unsigned int);
+
+		//Get a heap of memory from the operating system. Clear memory before getting it.
+		if (renderState.memory) VirtualFree(renderState.memory, 0, MEM_RELEASE);
+
+		renderState.memory = VirtualAlloc(0, render_state_size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+		renderState.bitmapinfo.bmiHeader.biSize = sizeof(renderState.bitmapinfo.bmiHeader);
+		renderState.bitmapinfo.bmiHeader.biWidth = renderState.width;
+		renderState.bitmapinfo.bmiHeader.biHeight = renderState.height;
+		renderState.bitmapinfo.bmiHeader.biPlanes = 1;
+		renderState.bitmapinfo.bmiHeader.biBitCount = 32;
+		renderState.bitmapinfo.bmiHeader.biCompression = BI_RGB;
+	} break;
 	case WM_DESTROY:
 		{
 			PostQuitMessage(0);
@@ -92,6 +122,21 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		//Simulate Game
+
+		StretchDIBits(deviceContext,
+			0,
+			0,
+			renderState.width,
+			renderState.height,
+			0,
+			0,
+			renderState.width,
+			renderState.height,
+			renderState.memory,
+			&renderState.bitmapinfo,
+			DIB_RGB_COLORS, SRCCOPY);
+
 		dt.ChangeDeltaTime();
 	}
 
