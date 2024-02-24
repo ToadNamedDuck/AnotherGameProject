@@ -79,6 +79,7 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	Tile testTile(16, 0, 0, testMask);
 	testTile.tell();
 	testTile.showMask();
+	testTile.getPixels();
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"Simple Window";
 	WNDCLASS wnd = {};//Convert to WNDCLASSEX when I want icons. Need a 32x32 and a 16x16 .ico file.
