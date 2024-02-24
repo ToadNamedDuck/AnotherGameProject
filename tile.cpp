@@ -48,7 +48,7 @@ public:
 		}
 	}
 	void tell() {
-		std::cout << size << sprite_start_x << sprite_start_y << std::endl;
+		std::cout << size << " " << sprite_start_x << " " << sprite_start_y << " " << std::endl;
 	}
 	void showMask()
 	{
@@ -58,9 +58,6 @@ public:
 			std::cout << bitmaskBits << std::endl;
 		}
 	}
-	//The whole getPixels idea is just... flawed. I should load the images in main, and maybe pass a pointer to the already active file reads for each one in memory.
-	//It doesn't solve the fact that the pixel data was just incorrect entirely though.
-	//Lot to learn about bitmap files apparently.
 
 	void getPixels() {
 		//Open the overworld.bmp file for now. We can use an enum param later to choose which file to open.
@@ -74,20 +71,16 @@ public:
 		file.read(reinterpret_cast<char*>(&dibHeader), sizeof(DIBHeader));
 		//loop through the region selected and get the pixel data.
 
-		std::cout << dibHeader.bitsPerPixel << std::endl;
-		std::cout << dibHeader.width << std::endl;
-		std::cout << dibHeader.height << " - height" << std::endl;
+		int rowSize = floor((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;  // Calculate row size
+		file.seekg(bmpHeader.dataOffset, std::ios::beg);
 
-		file.seekg(bmpHeader.dataOffset);
 		for (int y = sprite_start_y; y < sprite_start_y + 16; y++) {
 			for (int x = sprite_start_x; x < sprite_start_x + 16; x++) {
 				// Calculate the byte position of the current pixel
-				int rowSize = floor((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;  // Calculate row size for the specific region
 				int bytePosition = y * rowSize + x * (dibHeader.bitsPerPixel / 8);
-				std::cout << "Row Size: " << rowSize << " " << "Byte Position: " << bytePosition << std::endl;
+				std::cout << "Byte Position: " << bytePosition << std::endl;
 				// Move the file reader to the correct position
-				file.seekg(bytePosition, std::ios::beg);
-
+				file.seekg(bytePosition, std::ios::cur);
 				// Read RGBA values
 				char pixel[4];
 				file.read(pixel, sizeof(pixel));
@@ -98,10 +91,7 @@ public:
 				unsigned char red = static_cast<unsigned char>(pixel[2]);
 				unsigned char alpha = static_cast<unsigned char>(pixel[3]);
 
-				// Your code to use RGBA values goes here
-				// ...
 
-				// Example: Print RGBA values
 				std::cout << "Pixel at (" << x << ", " << y << "): ";
 				std::cout << "R=" << static_cast<int>(red) << ", ";
 				std::cout << "G=" << static_cast<int>(green) << ", ";
