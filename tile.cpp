@@ -108,25 +108,26 @@ public:
 		std::cout << "Alpha Mask: " << masks.alphaMask << std::endl;
 		std::cout << std::dec << "--------BITMASK INFORMATION END--------" << std::endl;
 
-		if (dibHeader.height > 0) {
-			dibHeader.height = -dibHeader.height;
-		}
-
 		//loop through the region selected and get the pixel data.
 		int rowSize = floor((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;  // Calculate row size
 		std::cout << "Row Size: " << rowSize << std::endl;
-		//file.seekg(bmpHeader.dataOffset, std::ios::beg);
+		
+		//				int bytePosition =  y * rowSize + x * (dibHeader.bitsPerPixel / 8);
 
 		for (int y = sprite_start_y; y < sprite_start_y + 16; y++) {
+
+			file.seekg(bmpHeader.dataOffset);
+
 			for (int x = sprite_start_x; x < sprite_start_x + 16; x++) {
-				// Calculate the byte position of the current pixel
+
 				int bytePosition = y * rowSize + x * (dibHeader.bitsPerPixel / 8);
-				std::cout << "Byte Position: " << bytePosition << std::endl;
-				// Move the file reader to the correct position
-				//file.seekg(bytePosition + bmpHeader.dataOffset, std::ios::beg);
-				std::cout << "Pixel at X: " << x << " | Y: " << y << std::endl;
+
+				std::cout << "Pixel at: " << x << ", " << y << " - ";
+				std::cout << "Byte Position: " << bytePosition;
+				std::cout << std::endl;
 			}
 		}
+
 
 		//Using the size, we want to get the correct tile off the grid using the provided coordinates, then assuming we know the tile is in the view of the camera, we call draw.
 		// I think what we have to do is potentially return a 16x16 grid of pixel data to render - but definitely don't store it in the Tile itself.
