@@ -111,19 +111,28 @@ public:
 		//loop through the region selected and get the pixel data.
 		int rowSize = floor((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;  // Calculate row size
 		std::cout << "Row Size: " << rowSize << std::endl;
+
 		
 		//				int bytePosition =  y * rowSize + x * (dibHeader.bitsPerPixel / 8);
 
-		for (int y = sprite_start_y; y < sprite_start_y + 16; y++) {
-
-			file.seekg(bmpHeader.dataOffset);
-
-			for (int x = sprite_start_x; x < sprite_start_x + 16; x++) {
+		for (int y = sprite_start_y; y < sprite_start_y + size; y++) {
+			file.seekg(sizeof(DIBHeader) + sizeof(BMPHeader) + sizeof(BitMasks));
+			for (int x = sprite_start_x; x < sprite_start_x + size; x++) {
 
 				int bytePosition = y * rowSize + x * (dibHeader.bitsPerPixel / 8);
 
 				std::cout << "Pixel at: " << x << ", " << y << " - ";
-				std::cout << "Byte Position: " << bytePosition;
+				std::cout << "Byte Position: " << bytePosition << " - ";
+
+				char pixel[4];//Pixel is an array of four bytes
+				file.seekg(bytePosition, std::ios::cur);
+				file.read(pixel, sizeof(pixel));
+				unsigned char* alpha = reinterpret_cast<unsigned char*>(pixel[0]);
+				unsigned char* red = reinterpret_cast<unsigned char*>(pixel[1]);
+				unsigned char* green = reinterpret_cast<unsigned char*>(pixel[2]);
+				unsigned char* blue = reinterpret_cast<unsigned char*>(pixel[3]);
+				//std::cout << "b: " << static_cast<int>(pixel[0]) << " g: " << static_cast<int>(pixel[1]) << " r: " << static_cast<int>(pixel[2]) << " a: " << static_cast<int>(pixel[3]) << std::endl;
+				std::cout << "red: " << reinterpret_cast<int>(red) << " green: " << reinterpret_cast<int>(green) << " blue: " << reinterpret_cast<int>(blue);
 				std::cout << std::endl;
 			}
 		}
