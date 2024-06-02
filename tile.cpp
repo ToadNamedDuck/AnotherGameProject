@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <vector>
 
 #pragma pack(push, 1)
 struct BMPHeader {
@@ -46,6 +47,16 @@ class Tile : public iSprite
 {
 private:
 	uint16_t bitmask[16];
+	// Function to count trailing zeros
+	int countTrailingZeros(uint32_t mask) {
+		if (mask == 0) return 32;
+		int count = 0;
+		while ((mask & 1) == 0) {
+			mask >>= 1;
+			count++;
+		}
+		return count;
+	}
 public:
 	Tile(int size, int start_x, int start_y, uint16_t init_bitmask[16]) : iSprite(size, start_x, start_y)
 	{
@@ -102,38 +113,35 @@ public:
 		BitMasks masks;
 		file.read(reinterpret_cast<char*>(&masks), sizeof(BitMasks));
 		std::cout << "--------BITMASK INFORMATION START--------" << std::endl;
-		std::cout << "Red Mask: " << std::hex << masks.redMask << std::endl;
+		std::cout << "Red Mask: " << masks.redMask << std::endl;
 		std::cout << "Green Mask: " << masks.greenMask << std::endl;
 		std::cout << "Blue Mask: " << masks.blueMask << std::endl;
 		std::cout << "Alpha Mask: " << masks.alphaMask << std::endl;
-		std::cout << std::dec << "--------BITMASK INFORMATION END--------" << std::endl;
+		std::cout << "--------BITMASK INFORMATION END--------" << std::endl;
 
-		//loop through the region selected and get the pixel data.
-		int rowSize = floor((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;  // Calculate row size
-		std::cout << "Row Size: " << rowSize << std::endl;
+		// Calculate row size
+		int rowSize = ((dibHeader.bitsPerPixel * dibHeader.width + 31) / 32) * 4;
 
-		
-		//				int bytePosition =  y * rowSize + x * (dibHeader.bitsPerPixel / 8);
+		// Allocate buffer for a row
+		std::vector<char> rowBuffer(rowSize);
 
-		for (int y = sprite_start_y; y < sprite_start_y + size; y++) {
-			file.seekg(sizeof(DIBHeader) + sizeof(BMPHeader) + sizeof(BitMasks));
-			for (int x = sprite_start_x; x < sprite_start_x + size; x++) {
+		// Loop through the region selected and get the pixel data.
+		for (int y = sprite_start_y; y < sprite_start_y + size; ++y) {
+			file.seekg(bmpHeader.dataOffset + (dibHeader.height - 1 - y) * rowSize);
+			file.read(rowBuffer.data(), rowSize);
 
-				int bytePosition = y * rowSize + x * (dibHeader.bitsPerPixel / 8);
+			for (int x = sprite_start_x; x < sprite_start_x + size; ++x) {
+				uint32_t pixel = *reinterpret_cast<uint32_t*>(rowBuffer.data() + x * 4);
+				uint8_t red = (pixel & masks.redMask) >> countTrailingZeros(masks.redMask);
+				uint8_t green = (pixel & masks.greenMask) >> countTrailingZeros(masks.greenMask);
+				uint8_t blue = (pixel & masks.blueMask) >> countTrailingZeros(masks.blueMask);
+				uint8_t alpha = (pixel & masks.alphaMask) >> countTrailingZeros(masks.alphaMask);
 
-				std::cout << "Pixel at: " << x << ", " << y << " - ";
-				std::cout << "Byte Position: " << bytePosition << " - ";
-
-				char pixel[4];//Pixel is an array of four bytes
-				file.seekg(bytePosition, std::ios::cur);
-				file.read(pixel, sizeof(pixel));
-				unsigned char* alpha = reinterpret_cast<unsigned char*>(pixel[0]);
-				unsigned char* red = reinterpret_cast<unsigned char*>(pixel[1]);
-				unsigned char* green = reinterpret_cast<unsigned char*>(pixel[2]);
-				unsigned char* blue = reinterpret_cast<unsigned char*>(pixel[3]);
-				//std::cout << "b: " << static_cast<int>(pixel[0]) << " g: " << static_cast<int>(pixel[1]) << " r: " << static_cast<int>(pixel[2]) << " a: " << static_cast<int>(pixel[3]) << std::endl;
-				std::cout << "red: " << reinterpret_cast<int>(red) << " green: " << reinterpret_cast<int>(green) << " blue: " << reinterpret_cast<int>(blue);
-				std::cout << std::endl;
+				std::cout << "Pixel at (" << x << ", " << y << "): "
+					<< "R: " << static_cast<int>(red) << ", "
+					<< "G: " << static_cast<int>(green) << ", "
+					<< "B: " << static_cast<int>(blue) << ", "
+					<< "A: " << static_cast<int>(alpha) << std::endl;
 			}
 		}
 
