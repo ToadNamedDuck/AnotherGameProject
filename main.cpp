@@ -79,7 +79,13 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	Tile testTile(16, 0, 0, testMask);
 	testTile.tell();
 	testTile.showMask();
-	testTile.getPixels();
+	Pixel (&pixels)[16][16] = testTile.getPixels();
+	for (int y = 0; y < 16; y++) {
+		for (int x = 0; x < 16; x++) {
+			std::cout << pixels[x][y].r << " " << pixels[x][y].g << " " << pixels[x][y].b << " | ";
+		}
+		std::cout << std::endl;
+	}
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"Simple Window";
 	WNDCLASS wnd = {};//Convert to WNDCLASSEX when I want icons. Need a 32x32 and a 16x16 .ico file.
@@ -110,6 +116,7 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 
 	HDC deviceContext = GetDC(window);
 
+
 	ShowWindow(window, nCmdShow);
 	DeltaTime dt;
 	dt.SetFrameBegin();
@@ -124,7 +131,11 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 			DispatchMessage(&msg);
 		}
 		//Simulate Game
-
+		for (int x = 0; x < 16; x++) {
+			for (int y = 0; y < 16; y++) {
+				SetPixel(deviceContext, x, y, RGB(pixels[x][y].r, pixels[x][y].g, pixels[x][y].b));
+			}
+		}
 		StretchDIBits(deviceContext,
 			0,
 			0,

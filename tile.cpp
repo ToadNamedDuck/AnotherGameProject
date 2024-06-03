@@ -41,6 +41,11 @@ struct BitMasks {
 	uint32_t blueMask;
 	uint32_t alphaMask;
 };
+struct Pixel {
+	int r;
+	int g;
+	int b;
+};
 #pragma pack(pop)
 
 class Tile : public iSprite
@@ -57,6 +62,7 @@ private:
 		}
 		return count;
 	}
+	Pixel pixelData[16][16];
 public:
 	Tile(int size, int start_x, int start_y, uint16_t init_bitmask[16]) : iSprite(size, start_x, start_y)
 	{
@@ -77,10 +83,11 @@ public:
 		}
 	}
 
-	void getPixels() {
+	Pixel (&getPixels())[16][16] {
 		//Open the overworld.bmp file for now. We can use an enum param later to choose which file to open.
 		std::ifstream file("Overworld.bmp", std::ios::binary);
-
+		int currentRow = 0;
+		int currentColumn = 0;
 		//Read the bmpHeader
 		BMPHeader bmpHeader;
 		file.read(reinterpret_cast<char*>(&bmpHeader), sizeof(BMPHeader));
@@ -136,15 +143,23 @@ public:
 				uint8_t green = (pixel & masks.greenMask) >> countTrailingZeros(masks.greenMask);
 				uint8_t blue = (pixel & masks.blueMask) >> countTrailingZeros(masks.blueMask);
 				uint8_t alpha = (pixel & masks.alphaMask) >> countTrailingZeros(masks.alphaMask);
+				int redInt = static_cast<int>(red);
+				int greenInt = static_cast<int>(green);
+				int blueInt = static_cast<int>(blue);
 
-				std::cout << "Pixel at (" << x << ", " << y << "): "
-					<< "R: " << static_cast<int>(red) << ", "
-					<< "G: " << static_cast<int>(green) << ", "
-					<< "B: " << static_cast<int>(blue) << ", "
-					<< "A: " << static_cast<int>(alpha) << std::endl;
+				Pixel info;
+				info.r = redInt;
+				info.g = greenInt;
+				info.b = blueInt;
+				pixelData[currentColumn][currentRow] = info;
+				currentColumn++;
+				if (currentColumn > 15) {
+					currentColumn = 0;
+				}
 			}
+			currentRow++;
 		}
-
+		return pixelData;
 
 		//Using the size, we want to get the correct tile off the grid using the provided coordinates, then assuming we know the tile is in the view of the camera, we call draw.
 		// I think what we have to do is potentially return a 16x16 grid of pixel data to render - but definitely don't store it in the Tile itself.
