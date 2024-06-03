@@ -80,7 +80,7 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 	testTile.tell();
 	testTile.showMask();
 	Pixel (&pixels)[16][16] = testTile.getPixels();
-	for (int y = 0; y < 16; y++) {
+	for (int y = 15; y >= 0; y--) {
 		for (int x = 0; x < 16; x++) {
 			std::cout << pixels[x][y].r << " " << pixels[x][y].g << " " << pixels[x][y].b << " | ";
 		}
@@ -133,7 +133,7 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 		//Simulate Game
 		int x = 0;
 		int y = 0;
-		for (int r = 0; r < 16; r++) {
+		for (int r = 15; r >= 0; r--) {
 			unsigned int* pixel = (unsigned int*)renderState.memory + x + y*renderState.width;
 			for (int c = 0; c < 16; c++) {
 				*pixel++ = RGB(pixels[c][r].r, pixels[c][r].g, pixels[c][r].b);
