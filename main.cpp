@@ -131,10 +131,18 @@ int WINAPI main(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, in
 			DispatchMessage(&msg);
 		}
 		//Simulate Game
-		for (int x = 0; x < 16; x++) {
-			for (int y = 0; y < 16; y++) {
-				SetPixel(deviceContext, x, y, RGB(pixels[x][y].r, pixels[x][y].g, pixels[x][y].b));
+		int x = 0;
+		int y = 0;
+		for (int r = 0; r < 16; r++) {
+			unsigned int* pixel = (unsigned int*)renderState.memory + x + y*renderState.width;
+			for (int c = 0; c < 16; c++) {
+				*pixel++ = RGB(pixels[c][r].r, pixels[c][r].g, pixels[c][r].b);
+				x++;
+				if (x > 15) {
+					x = 0;
+				}
 			}
+			y++;
 		}
 		StretchDIBits(deviceContext,
 			0,
